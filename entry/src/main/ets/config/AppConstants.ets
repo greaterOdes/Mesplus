@@ -1,3 +1,11 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
+/**
+ * @since: 2026-04-30 23-13-58
+ * @Author: @greaterOdes
+ */
 export enum LoginMode {
   PASSWORD = 'PASSWORD',
   SMS = 'SMS',

@@ -1,11 +1,13 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
+/**
+ * @since: 2026-05-01 00-38-02
+ * @Author: @greaterOdes
+ */
 @Component
 export struct ContactsContent {
-  aboutToAppear(): void {
-  }
-
-  aboutToDisappear(): void {
-  }
-
   @Builder
   ContactRow(name: string, role: string) {
     Row() {
@@ -18,12 +20,10 @@ export struct ContactsContent {
         .textAlign(TextAlign.Center)
         .backgroundColor('#E8F8EF')
         .borderRadius(19)
-
       Column() {
         Text(name)
           .fontSize(16)
           .fontColor('#111827')
-
         Text(role)
           .fontSize(13)
           .fontColor('#6B7280')
@@ -43,20 +43,17 @@ export struct ContactsContent {
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
           .width('100%')
-
         Text('组织 部门 人员')
           .fontSize(14)
           .fontColor('#6B7280')
           .width('100%')
           .margin({ top: 6, bottom: 18 })
-
         Column() {
           Text('制造中心')
             .fontSize(17)
             .fontWeight(FontWeight.Medium)
             .fontColor('#111827')
             .width('100%')
-
           this.ContactRow('张工', '设备部 主管')
           this.ContactRow('李工', '生产一部 班长')
           this.ContactRow('王工', '质量部 工程师')
@@ -65,14 +62,12 @@ export struct ContactsContent {
         .padding({ left: 16, right: 16, top: 16, bottom: 8 })
         .backgroundColor('#FFFFFF')
         .borderRadius(16)
-
         Column() {
           Text('仓储物流')
             .fontSize(17)
             .fontWeight(FontWeight.Medium)
             .fontColor('#111827')
             .width('100%')
-
           this.ContactRow('赵工', '仓储部 调度')
           this.ContactRow('陈工', '物流部 现场协调')
         }

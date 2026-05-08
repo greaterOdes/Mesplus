@@ -1,20 +1,22 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { WechatTabBar } from '../components/WechatTabBar';
 import { ContactsContent } from './ContactsPage';
 import { HomeContent } from './HomePage';
 import { ProfileContent } from './ProfilePage';
 import { WorkLogContent } from './WorkLogPage';
 
+/**
+ * @since: 2026-05-01 00-34-42
+ * @Author: @greaterOdes
+ */
 @Component
 export struct MainContent {
   @State currentIndex: number = 0;
 
   onLogout: () => void = (): void => {};
-
-  aboutToAppear(): void {
-  }
-
-  aboutToDisappear(): void {
-  }
 
   @Builder
   CurrentPage() {
@@ -41,7 +43,6 @@ export struct MainContent {
         top: { anchor: '__container__', align: VerticalAlign.Top },
         bottom: { anchor: '__container__', align: VerticalAlign.Bottom }
       })
-
       WechatTabBar({ currentIndex: $currentIndex })
         .alignRules({
           bottom: { anchor: '__container__', align: VerticalAlign.Bottom },

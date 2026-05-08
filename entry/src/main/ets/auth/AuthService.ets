@@ -1,3 +1,7 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { SessionStore } from '../app/SessionStore';
 import { Channel, CookieMapping, FieldMapping, LoginMethodConfig } from '../models/Channel';
 import { Session } from '../models/Session';
@@ -5,6 +9,10 @@ import { ChannelUserInfoObject } from '../models/UserProfile';
 import { normalizeLoginResult } from './UserNormalizer';
 import { LoginStrategyRegistry } from './LoginStrategyRegistry';
 
+/**
+ * @since: 2026-04-30 23-51-09
+ * @Author: @greaterOdes
+ */
 export class AuthService {
   private refreshPromises: Map<string, Promise<boolean>> = new Map<string, Promise<boolean>>();
   private sessionStore: SessionStore;
@@ -39,7 +47,6 @@ export class AuthService {
       this.sessionStore.clear(channel.id);
       return false;
     }
-
     if (now - session.lastAuthAt <= channel.autoLogin.intervalMinutes * 60 * 1000) {
       return true;
     }
@@ -47,13 +54,11 @@ export class AuthService {
       this.sessionStore.clear(channel.id);
       return false;
     }
-
     const refreshKey = this.createRefreshKey(channel, method);
     const existingRefresh = this.refreshPromises.get(refreshKey);
     if (existingRefresh !== undefined) {
       return existingRefresh;
     }
-
     const refresh = this.refreshSession(channel, method, session, now);
     this.refreshPromises.set(refreshKey, refresh);
     try {

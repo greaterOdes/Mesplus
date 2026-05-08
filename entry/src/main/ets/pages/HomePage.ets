@@ -1,13 +1,15 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { MiniProgramSearch } from '../components/MiniProgramSearch';
 
+/**
+ * @since: 2026-05-01 00-38-02
+ * @Author: @greaterOdes
+ */
 @Component
 export struct HomeContent {
-  aboutToAppear(): void {
-  }
-
-  aboutToDisappear(): void {
-  }
-
   @Builder
   IndustrialCard(title: string, content: string) {
     Column() {
@@ -16,7 +18,6 @@ export struct HomeContent {
         .fontWeight(FontWeight.Medium)
         .fontColor('#111827')
         .width('100%')
-
       Text(content)
         .fontSize(13)
         .fontColor('#6B7280')
@@ -38,15 +39,12 @@ export struct HomeContent {
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
           .width('100%')
-
         Text('工业现场协同入口')
           .fontSize(14)
           .fontColor('#6B7280')
           .width('100%')
           .margin({ top: 6, bottom: 16 })
-
         MiniProgramSearch()
-
         this.IndustrialCard('今日生产', '产线运行平稳，关键设备待巡检 3 项')
         this.IndustrialCard('工单提醒', '待处理 5 条，已完成 18 条')
         this.IndustrialCard('异常跟进', '质量异常 1 条，安全异常 0 条')

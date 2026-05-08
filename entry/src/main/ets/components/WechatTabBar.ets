@@ -1,3 +1,11 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
+/**
+ * @since: 2026-05-01 00-48-18
+ * @Author: @greaterOdes
+ */
 @Component
 export struct WechatTabBar {
   @Link currentIndex: number;
@@ -40,7 +48,6 @@ export struct WechatTabBar {
         .textAlign(TextAlign.Center)
         .backgroundColor(this.currentIndex === index ? '#E8F8EF' : '#FFFFFF')
         .borderRadius(12)
-
       Text(this.tabTitle(index))
         .fontSize(11)
         .fontColor(this.currentIndex === index ? '#07C160' : '#666666')

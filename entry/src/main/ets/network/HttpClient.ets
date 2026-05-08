@@ -1,3 +1,7 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { SessionStore } from '../app/SessionStore';
 import { AuthService } from '../auth/AuthService';
 import { ServiceType } from '../config/AppConstants';
@@ -6,17 +10,29 @@ import { SessionCookie } from '../models/Session';
 import { mergeSafeHeaders, RequestHeaders } from './HeaderGuard';
 import { resolveServiceUrl } from './ServiceResolver';
 
+/**
+ * @since: 2026-05-01 00-21-18
+ * @Author: @greaterOdes
+ */
 export interface HttpClientOptions {
+  /** 自定义请求头。 */
   headers?: RequestHeaders;
+  /** 请求超时时间。 */
   timeoutMs?: number;
+  /** 是否跳过自动登录检查。 */
   skipAutoLogin?: boolean;
 }
 
 export interface HttpRequestRecord {
+  /** HTTP 方法。 */
   method: string;
+  /** 请求地址。 */
   url: string;
+  /** 请求头。 */
   headers: RequestHeaders;
+  /** 请求体。 */
   body: string;
+  /** 请求超时时间。 */
   timeoutMs?: number;
 }
 
@@ -46,10 +62,12 @@ export class HttpClient {
     this.sender = sender;
   }
 
+  /** 发送 GET 请求。 */
   get(serviceType: ServiceType, apiPath: string, options?: HttpClientOptions): Promise<string> {
     return this.send('GET', serviceType, apiPath, '', options);
   }
 
+  /** 发送 POST 请求。 */
   post(serviceType: ServiceType, apiPath: string, body: string, options?: HttpClientOptions): Promise<string> {
     return this.send('POST', serviceType, apiPath, body, options);
   }

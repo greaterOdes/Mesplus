@@ -1,15 +1,17 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { LoginContent } from '../LoginPage';
 import { NavRouteName } from './NavRoutes';
 
+/**
+ * @since: 2026-05-08 21-35-32
+ * @Author: @greaterOdes
+ */
 @Component
 export struct LoginNavDestination {
   pathStack: NavPathStack = new NavPathStack();
-
-  aboutToAppear(): void {
-  }
-
-  aboutToDisappear(): void {
-  }
 
   private goToMainHome(): void {
     this.pathStack.clear();

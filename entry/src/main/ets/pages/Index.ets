@@ -1,18 +1,20 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { LoginNavDestination } from './navcomponent/LoginNavDestination';
 import { MainHomeNavDestination } from './navcomponent/MainHomeNavDestination';
 import { NavRouteName } from './navcomponent/NavRoutes';
 import { SsoWebViewNavDestination } from './navcomponent/SsoWebViewNavDestination';
 
+/**
+ * @since: 2026-04-29 22-54-46
+ * @Author: @greaterOdes
+ */
 @Entry
 @Component
 struct Index {
   private pathStack: NavPathStack = new NavPathStack();
-
-  aboutToAppear(): void {
-  }
-
-  aboutToDisappear(): void {
-  }
 
   @Builder
   NavDestinationBuilder(name: string) {

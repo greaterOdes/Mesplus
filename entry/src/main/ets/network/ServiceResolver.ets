@@ -1,18 +1,23 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { GatewayMode, ServiceType } from '../config/AppConstants';
 import { ServiceGatewayConfig, ServiceMap } from '../models/Channel';
 
+/**
+ * @since: 2026-04-30 23-35-10
+ * @Author: @greaterOdes
+ */
 export function resolveServiceUrl(services: ServiceMap, serviceType: ServiceType, apiPath: string): string {
   if (!apiPath.startsWith('/')) {
     throw new Error('apiPath must start with /');
   }
-
   const service = getService(services, serviceType);
   const gateway = resolveGateway(service, serviceType);
-
   if (gateway.length === 0) {
     throw new Error(`service ${serviceType} gateway must be non-empty`);
   }
-
   return gateway + apiPath;
 }
 
@@ -37,7 +42,6 @@ function getService(services: ServiceMap, serviceType: ServiceType): ServiceGate
   } else if (serviceType === ServiceType.FILE) {
     service = services.file;
   }
-
   if (service === undefined) {
     throw new Error(`service ${serviceType} is missing`);
   }

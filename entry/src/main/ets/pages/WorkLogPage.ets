@@ -1,11 +1,13 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
+/**
+ * @since: 2026-05-01 00-38-02
+ * @Author: @greaterOdes
+ */
 @Component
 export struct WorkLogContent {
-  aboutToAppear(): void {
-  }
-
-  aboutToDisappear(): void {
-  }
-
   @Builder
   LogItem(time: string, title: string, status: string, color: string) {
     Row() {
@@ -13,7 +15,6 @@ export struct WorkLogContent {
         Text(time)
           .fontSize(13)
           .fontColor('#6B7280')
-
         Text(title)
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
@@ -21,7 +22,6 @@ export struct WorkLogContent {
           .margin({ top: 6 })
       }
       .layoutWeight(1)
-
       Text(status)
         .fontSize(13)
         .fontColor(color)
@@ -33,59 +33,70 @@ export struct WorkLogContent {
     .padding({ top: 14, bottom: 14 })
   }
 
+  @Builder
+  HeaderBar() {
+    Row() {
+      Column() {
+        Text('工作日志')
+          .fontSize(26)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#111827')
+        Text('2026-05-01 现场记录')
+          .fontSize(14)
+          .fontColor('#6B7280')
+          .margin({ top: 6 })
+      }
+      .layoutWeight(1)
+
+      Button('新增日志')
+        .height(38)
+        .fontSize(14)
+        .fontColor('#FFFFFF')
+        .backgroundColor('#07C160')
+        .borderRadius(19)
+    }
+    .width('100%')
+    .margin({ bottom: 18 })
+  }
+
+  @Builder
+  LogList() {
+    Column() {
+      this.LogItem('08:30', '设备巡检完成', '已提交', '#07C160')
+      this.LogItem('11:10', '生产线换型记录', '待确认', '#D97706')
+      this.LogItem('15:40', '异常原因跟进', '处理中', '#2563EB')
+    }
+    .width('100%')
+    .padding({ left: 16, right: 16, top: 6, bottom: 6 })
+    .backgroundColor('#FFFFFF')
+    .borderRadius(16)
+  }
+
+  @Builder
+  CreateLogPlaceholder() {
+    Column() {
+      Text('新增日志占位')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor('#111827')
+      Text('后续接入日志编辑、图片和定位能力')
+        .fontSize(13)
+        .fontColor('#6B7280')
+        .margin({ top: 8 })
+    }
+    .width('100%')
+    .padding({ left: 16, right: 16, top: 16, bottom: 16 })
+    .backgroundColor('#FFFFFF')
+    .borderRadius(16)
+    .margin({ top: 14 })
+  }
+
   build() {
     Scroll() {
       Column() {
-        Row() {
-          Column() {
-            Text('工作日志')
-              .fontSize(26)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#111827')
-
-            Text('2026-05-01 现场记录')
-              .fontSize(14)
-              .fontColor('#6B7280')
-              .margin({ top: 6 })
-          }
-          .layoutWeight(1)
-
-          Button('新增日志')
-            .height(38)
-            .fontSize(14)
-            .fontColor('#FFFFFF')
-            .backgroundColor('#07C160')
-            .borderRadius(19)
-        }
-        .width('100%')
-        .margin({ bottom: 18 })
-
-        Column() {
-          this.LogItem('08:30', '设备巡检完成', '已提交', '#07C160')
-          this.LogItem('11:10', '生产线换型记录', '待确认', '#D97706')
-          this.LogItem('15:40', '异常原因跟进', '处理中', '#2563EB')
-        }
-        .width('100%')
-        .padding({ left: 16, right: 16, top: 6, bottom: 6 })
-        .backgroundColor('#FFFFFF')
-        .borderRadius(16)
-
-        Column() {
-          Text('新增日志占位')
-            .fontSize(16)
-            .fontWeight(FontWeight.Medium)
-            .fontColor('#111827')
-
-          Text('后续接入日志编辑、图片和定位能力')
-            .fontSize(13)
-            .fontColor('#6B7280')
-            .margin({ top: 8 })
-        }
-        .width('100%')
-        .padding({ left: 16, right: 16, top: 16, bottom: 16 })
-        .backgroundColor('#FFFFFF')
-        .borderRadius(16)
-        .margin({ top: 14 })
+        this.HeaderBar()
+        this.LogList()
+        this.CreateLogPlaceholder()
       }
       .width('100%')
       .padding({ left: 18, right: 18, top: 28, bottom: 24 })
