@@ -1,0 +1,91 @@
+{
+  "channels": [
+    {
+      "id": "default",
+      "name": "Default Channel",
+      "gatewayMode": "MAG",
+      "services": {
+        "auth": {
+          "type": "auth",
+          "baseUrl": "https://auth.example.com",
+          "magGateway": "https://mag.example.com/auth",
+          "originalGateway": "https://origin.example.com/auth",
+          "gatewayMode": "MAG"
+        },
+        "business": {
+          "type": "business",
+          "baseUrl": "https://business.example.com",
+          "magGateway": "https://mag.example.com/business",
+          "originalGateway": "https://origin.example.com/business",
+          "gatewayMode": "ORIGINAL"
+        },
+        "sso": {
+          "type": "sso",
+          "baseUrl": "https://sso.example.com",
+          "magGateway": "https://mag.example.com/sso",
+          "originalGateway": "https://origin.example.com/sso",
+          "gatewayMode": "MAG"
+        },
+        "file": {
+          "type": "file",
+          "baseUrl": "https://file.example.com",
+          "magGateway": "https://mag.example.com/file",
+          "originalGateway": "https://origin.example.com/file",
+          "gatewayMode": "ORIGINAL"
+        }
+      },
+      "loginMethods": [
+        {
+          "mode": "PASSWORD",
+          "title": "Password Login",
+          "credentialPolicy": "rsa_encrypted_password",
+          "loginPath": "/auth/login",
+          "authService": "auth",
+          "smsVerifyPath": "/auth/sms/verify",
+          "autoLoginPath": "/auth/auto-login"
+        },
+        {
+          "mode": "SSO",
+          "title": "SSO Login",
+          "credentialPolicy": "sso_renewal_credential",
+          "loginPath": "/sso/login",
+          "ssoService": "sso",
+          "renewalService": "sso",
+          "renewalPath": "/sso/renewal"
+        }
+      ],
+      "userMapping": [
+        {
+          "source": "user_id",
+          "target": "userId"
+        },
+        {
+          "source": "realName",
+          "target": "userName"
+        },
+        {
+          "source": "mobile",
+          "target": "mobile"
+        },
+        {
+          "source": "department",
+          "target": "department"
+        },
+        {
+          "source": "avatarUrl",
+          "target": "avatarUrl"
+        }
+      ],
+      "cookieMapping": [
+        {
+          "name": "setCookie",
+          "target": "SESSION"
+        }
+      ],
+      "autoLogin": {
+        "enabled": true,
+        "intervalMinutes": 28
+      }
+    }
+  ]
+}
