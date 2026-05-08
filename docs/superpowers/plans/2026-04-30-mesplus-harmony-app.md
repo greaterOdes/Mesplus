@@ -37,7 +37,12 @@
 - Create: `entry/src/main/ets/app/SessionStore.ets`，会话保存接口和内存实现。
 - Create: `entry/src/main/ets/auth/UserNormalizer.ets`，登录结果归一化。
 - Create: `entry/src/main/ets/auth/CredentialStore.ets`，自动登录凭证接口和内存实现。
-- Create: `entry/src/main/ets/auth/AuthService.ets`，登录、自动登录、SSO 续期流程。
+- Create: `entry/src/main/ets/auth/LoginStrategy.ets`，登录策略接口、登录输入和登录结果类型。
+- Create: `entry/src/main/ets/auth/LoginStrategyRegistry.ets`，登录策略注册表。
+- Create: `entry/src/main/ets/auth/PasswordOnlyLoginStrategy.ets`，普通账号密码登录策略。
+- Create: `entry/src/main/ets/auth/PasswordSmsFirstDeviceLoginStrategy.ets`，账号密码加首次设备短信验证策略。
+- Create: `entry/src/main/ets/auth/SsoWebViewLoginStrategy.ets`，内嵌 WebView SSO 登录策略。
+- Create: `entry/src/main/ets/auth/AuthService.ets`，基于策略注册表的登录、自动登录、SSO 续期流程。
 - Create: `entry/src/main/ets/auth/WebBridge.ets`，SSO 回调名和 payload 解析入口。
 - Create: `entry/src/main/ets/network/HeaderGuard.ets`，请求头安全校验。
 - Create: `entry/src/main/ets/network/ServiceResolver.ets`，MAG/ORIGINAL 网关解析。
@@ -65,6 +70,7 @@
 - Create: `entry/src/test/UserNormalizer.test.ets`。
 - Create: `entry/src/test/ServiceResolver.test.ets`。
 - Create: `entry/src/test/HeaderGuard.test.ets`。
+- Create: `entry/src/test/LoginStrategyRegistry.test.ets`。
 - Create: `entry/src/test/AuthService.test.ets`。
 - Modify: `entry/src/test/List.test.ets`，引用全部测试。
 
@@ -95,15 +101,13 @@ export default function channelConfigLoaderTest() {
         channels: [{
           id: 'factory_a',
           name: '工厂A',
-          loginModes: ['password_sms_first_device', 'sso_webview'],
+          loginMethods: [
+            { mode: 'password_sms_first_device', title: '账号密码登录', authService: 'auth', loginPath: '/login/password', smsVerifyPath: '/login/first-device/sms', autoLoginPath: '/session/auto-login', credentialPolicy: 'rsa_encrypted_password' },
+            { mode: 'sso_webview', title: '统一身份认证', ssoService: 'sso', loginPath: '/login', renewalService: 'auth', renewalPath: '/session/sso-renewal', credentialPolicy: 'sso_renewal_credential' }
+          ],
           userMapping: { userId: ['userId', 'id'], userName: ['userName'], mobile: ['mobile'], department: ['department'], avatarUrl: ['avatarUrl'] },
           cookieMapping: { cookie: ['cookie', 'setCookie'] },
-          autoLogin: {
-            enabled: true,
-            intervalMinutes: 28,
-            passwordLogin: { service: 'auth', path: '/session/auto-login' },
-            ssoRenewal: { service: 'auth', path: '/session/sso-renewal' }
-          },
+          autoLogin: { enabled: true, intervalMinutes: 28 },
           services: {
             auth: { gatewayMode: 'MAG', magGateway: 'https://mag.proxy.com/auth-gateway', originalGateway: 'https://auth-a.example.com/auth-gateway' },
             business: { gatewayMode: 'MAG', magGateway: 'https://mag.proxy.com/biz-gateway', originalGateway: 'https://biz-a.example.com/biz-gateway' },
@@ -117,7 +121,9 @@ export default function channelConfigLoaderTest() {
       expect(config.channels.length).assertEqual(1);
       expect(config.channels[0].id).assertEqual('factory_a');
       expect(config.channels[0].services.auth.gatewayMode).assertEqual('MAG');
-      expect(config.channels[0].autoLogin.intervalMinutes).assertEqual(28);
+      expect(config.channels[0].loginMethods.length).assertEqual(2);
+      expect(config.channels[0].loginMethods[0].mode).assertEqual('password_sms_first_device');
+      expect(config.channels[0].loginMethods[1].title).assertEqual('统一身份认证');
     });
 
     it('rejectInvalidGatewayMode', 0, () => {
@@ -125,10 +131,10 @@ export default function channelConfigLoaderTest() {
         channels: [{
           id: 'factory_a',
           name: '工厂A',
-          loginModes: ['password_only'],
+          loginMethods: [{ mode: 'password_only', title: '普通账号密码登录', authService: 'auth', loginPath: '/login/password-only', autoLoginPath: '/session/auto-login', credentialPolicy: 'rsa_encrypted_password' }],
           userMapping: { userId: ['userId'], userName: ['userName'] },
           cookieMapping: { cookie: ['cookie'] },
-          autoLogin: { enabled: true, intervalMinutes: 28, passwordLogin: { service: 'auth', path: '/auto' }, ssoRenewal: { service: 'auth', path: '/renew' } },
+          autoLogin: { enabled: true, intervalMinutes: 28 },
           services: {
             auth: { gatewayMode: 'BAD', magGateway: 'https://mag/a', originalGateway: 'https://origin/a' },
             business: { gatewayMode: 'MAG', magGateway: 'https://mag/b', originalGateway: 'https://origin/b' },
@@ -219,22 +225,28 @@ export interface ServiceGatewayConfig {
 
 export type ServiceMap = Record<ServiceType, ServiceGatewayConfig>;
 
-export interface AutoLoginEndpointConfig {
-  service: ServiceType;
-  path: string;
-}
-
 export interface AutoLoginConfig {
   enabled: boolean;
   intervalMinutes: number;
-  passwordLogin: AutoLoginEndpointConfig;
-  ssoRenewal: AutoLoginEndpointConfig;
+}
+
+export interface LoginMethodConfig {
+  mode: LoginMode;
+  title: string;
+  credentialPolicy: string;
+  authService?: ServiceType;
+  ssoService?: ServiceType;
+  renewalService?: ServiceType;
+  loginPath: string;
+  smsVerifyPath?: string;
+  autoLoginPath?: string;
+  renewalPath?: string;
 }
 
 export interface Channel {
   id: string;
   name: string;
-  loginModes: LoginMode[];
+  loginMethods: LoginMethodConfig[];
   userMapping: FieldMapping;
   cookieMapping: CookieMapping;
   autoLogin: AutoLoginConfig;
@@ -250,7 +262,7 @@ export interface ChannelConfig {
 
 ```ts
 import { DEFAULT_AUTO_LOGIN_INTERVAL_MINUTES, GatewayMode, LoginMode, ServiceType } from './AppConstants';
-import { AutoLoginConfig, Channel, ChannelConfig, ServiceGatewayConfig, ServiceMap } from '../models/Channel';
+import { AutoLoginConfig, Channel, ChannelConfig, LoginMethodConfig, ServiceGatewayConfig, ServiceMap } from '../models/Channel';
 
 function requireString(value: object | string | number | boolean | null | undefined, name: string): string {
   if (typeof value !== 'string' || value.length === 0) {
@@ -276,12 +288,41 @@ function parseGatewayMode(value: string): GatewayMode {
   throw new Error(`Invalid gatewayMode: ${value}`);
 }
 
-function parseLoginModes(values: string[]): LoginMode[] {
-  return values.map((value: string) => {
+function parseLoginMode(value: string): LoginMode {
     if (value === LoginMode.PASSWORD_SMS_FIRST_DEVICE || value === LoginMode.SSO_WEBVIEW || value === LoginMode.PASSWORD_ONLY) {
       return value as LoginMode;
     }
     throw new Error(`Invalid loginMode: ${value}`);
+}
+
+function parseOptionalService(value: string | undefined): ServiceType | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === ServiceType.AUTH || value === ServiceType.BUSINESS || value === ServiceType.SSO || value === ServiceType.FILE) {
+    return value as ServiceType;
+  }
+  throw new Error(`Invalid service: ${value}`);
+}
+
+function parseLoginMethods(values: object[]): LoginMethodConfig[] {
+  if (!Array.isArray(values) || values.length === 0) {
+    throw new Error('Invalid loginMethods');
+  }
+  return values.map((item: object) => {
+    const raw = item as Record<string, string>;
+    return {
+      mode: parseLoginMode(requireString(raw.mode, 'loginMethods.mode')),
+      title: requireString(raw.title, 'loginMethods.title'),
+      credentialPolicy: requireString(raw.credentialPolicy, 'loginMethods.credentialPolicy'),
+      authService: parseOptionalService(raw.authService),
+      ssoService: parseOptionalService(raw.ssoService),
+      renewalService: parseOptionalService(raw.renewalService),
+      loginPath: requireString(raw.loginPath, 'loginMethods.loginPath'),
+      smsVerifyPath: raw.smsVerifyPath,
+      autoLoginPath: raw.autoLoginPath,
+      renewalPath: raw.renewalPath
+    };
   });
 }
 
@@ -303,13 +344,9 @@ function parseServices(services: Record<string, Record<string, string>>): Servic
 }
 
 function parseAutoLogin(raw: Record<string, object | string | number | boolean>): AutoLoginConfig {
-  const passwordLogin = raw.passwordLogin as Record<string, string>;
-  const ssoRenewal = raw.ssoRenewal as Record<string, string>;
   return {
     enabled: raw.enabled === true,
-    intervalMinutes: typeof raw.intervalMinutes === 'number' ? raw.intervalMinutes : DEFAULT_AUTO_LOGIN_INTERVAL_MINUTES,
-    passwordLogin: { service: passwordLogin.service as ServiceType, path: requireString(passwordLogin.path, 'passwordLogin.path') },
-    ssoRenewal: { service: ssoRenewal.service as ServiceType, path: requireString(ssoRenewal.path, 'ssoRenewal.path') }
+    intervalMinutes: typeof raw.intervalMinutes === 'number' ? raw.intervalMinutes : DEFAULT_AUTO_LOGIN_INTERVAL_MINUTES
   };
 }
 
@@ -326,7 +363,7 @@ export function parseChannelConfig(jsonText: string): ChannelConfig {
     return {
       id: requireString(raw.id as string, 'id'),
       name: requireString(raw.name as string, 'name'),
-      loginModes: parseLoginModes(requireStringArray(raw.loginModes as string[], 'loginModes')),
+      loginMethods: parseLoginMethods(raw.loginMethods as object[]),
       userMapping: {
         userId: requireStringArray(userMapping.userId, 'userMapping.userId'),
         userName: requireStringArray(userMapping.userName, 'userMapping.userName'),
@@ -695,34 +732,130 @@ export function mergeSafeHeaders(customHeaders: RequestHeaders | undefined, cook
 
 ---
 
-### Task 4: AppState、SessionStore、CredentialStore 和 AuthService 自动登录
+### Task 4: 登录策略注册表、AppState、SessionStore、CredentialStore 和 AuthService 自动登录
 
 **Files:**
 - Create: `entry/src/main/ets/app/AppState.ets`
 - Create: `entry/src/main/ets/app/SessionStore.ets`
+- Create: `entry/src/main/ets/auth/LoginStrategy.ets`
+- Create: `entry/src/main/ets/auth/LoginStrategyRegistry.ets`
 - Create: `entry/src/main/ets/auth/CredentialStore.ets`
 - Create: `entry/src/main/ets/auth/AuthService.ets`
+- Create: `entry/src/test/LoginStrategyRegistry.test.ets`
 - Create: `entry/src/test/AuthService.test.ets`
 - Modify: `entry/src/test/List.test.ets`
 
 - [ ] **Step 1: 写失败测试**
 
-创建 `entry/src/test/AuthService.test.ets`，验证 28 分钟触发、成功更新 Cookie、失败回登录状态：
+创建 `entry/src/test/LoginStrategyRegistry.test.ets`，验证策略注册、查找和缺失策略失败：
 
 ```ts
 import { describe, it, expect } from '@ohos/hypium';
-import { AuthService, AutoLoginResult } from '../main/ets/auth/AuthService';
-import { InMemoryCredentialStore } from '../main/ets/auth/CredentialStore';
+import { LoginStrategyRegistry } from '../main/ets/auth/LoginStrategyRegistry';
+import { LoginMode } from '../main/ets/config/AppConstants';
+import { Channel, LoginMethodConfig } from '../main/ets/models/Channel';
+import { LoginInput, LoginResult, LoginStrategy } from '../main/ets/auth/LoginStrategy';
+
+class FakePasswordOnlyStrategy implements LoginStrategy {
+  mode: LoginMode = LoginMode.PASSWORD_ONLY;
+
+  async login(channel: Channel, method: LoginMethodConfig, input: LoginInput): Promise<LoginResult> {
+    return { rawLoginResult: { userId: 'u001', userName: '张三', cookie: 'sso=1' } };
+  }
+
+  async autoLogin(channel: Channel, method: LoginMethodConfig): Promise<LoginResult> {
+    return { rawLoginResult: { userId: 'u001', userName: '张三', cookie: 'sso=2' } };
+  }
+
+  supportsAutoLogin(method: LoginMethodConfig): boolean {
+    return method.autoLoginPath !== undefined;
+  }
+}
+
+export default function loginStrategyRegistryTest() {
+  describe('loginStrategyRegistryTest', () => {
+    it('registerAndGetStrategy', 0, () => {
+      const registry = new LoginStrategyRegistry();
+      registry.register(new FakePasswordOnlyStrategy());
+      expect(registry.get(LoginMode.PASSWORD_ONLY).mode).assertEqual(LoginMode.PASSWORD_ONLY);
+    });
+
+    it('rejectMissingStrategy', 0, () => {
+      const registry = new LoginStrategyRegistry();
+      let failed = false;
+      try {
+        registry.get(LoginMode.SSO_WEBVIEW);
+      } catch (err) {
+        failed = true;
+      }
+      expect(failed).assertTrue();
+    });
+  });
+}
+```
+
+创建 `entry/src/test/AuthService.test.ets`，验证 `AuthService` 通过策略注册表执行 28 分钟自动登录、成功更新 Cookie、失败回登录状态：
+
+```ts
+import { describe, it, expect } from '@ohos/hypium';
+import { AuthService } from '../main/ets/auth/AuthService';
 import { InMemorySessionStore } from '../main/ets/app/SessionStore';
 import { LoginMode, ServiceType } from '../main/ets/config/AppConstants';
+import { LoginStrategyRegistry } from '../main/ets/auth/LoginStrategyRegistry';
+import { Channel, LoginMethodConfig } from '../main/ets/models/Channel';
+import { LoginInput, LoginResult, LoginStrategy } from '../main/ets/auth/LoginStrategy';
+
+class FakeRefreshStrategy implements LoginStrategy {
+  mode: LoginMode = LoginMode.PASSWORD_ONLY;
+  constructor(private success: boolean) {}
+
+  async login(channel: Channel, method: LoginMethodConfig, input: LoginInput): Promise<LoginResult> {
+    return { rawLoginResult: { userId: 'u001', userName: '张三', cookie: 'manual=1' } };
+  }
+
+  async autoLogin(channel: Channel, method: LoginMethodConfig): Promise<LoginResult> {
+    if (!this.success) {
+      throw new Error('refresh failed');
+    }
+    return { rawLoginResult: { userId: 'u001', userName: '张三', cookie: 'new=1' } };
+  }
+
+  supportsAutoLogin(method: LoginMethodConfig): boolean {
+    return method.autoLoginPath !== undefined;
+  }
+}
+
+function createMethod(): LoginMethodConfig {
+  return { mode: LoginMode.PASSWORD_ONLY, title: '普通账号密码登录', credentialPolicy: 'rsa_encrypted_password', authService: ServiceType.AUTH, loginPath: '/login/password-only', autoLoginPath: '/session/auto-login' };
+}
+
+function createChannel(method: LoginMethodConfig): Channel {
+  return {
+    id: 'factory_a',
+    name: '工厂A',
+    loginMethods: [method],
+    userMapping: { userId: ['userId'], userName: ['userName'] },
+    cookieMapping: { cookie: ['cookie'] },
+    autoLogin: { enabled: true, intervalMinutes: 28 },
+    services: {
+      auth: { gatewayMode: 'MAG', magGateway: 'https://mag/auth', originalGateway: 'https://origin/auth' },
+      business: { gatewayMode: 'MAG', magGateway: 'https://mag/biz', originalGateway: 'https://origin/biz' },
+      sso: { gatewayMode: 'ORIGINAL', magGateway: 'https://mag/sso', originalGateway: 'https://origin/sso' },
+      file: { gatewayMode: 'ORIGINAL', magGateway: 'https://mag/file', originalGateway: 'https://origin/file' }
+    }
+  };
+}
 
 export default function authServiceTest() {
   describe('authServiceTest', () => {
     it('skipAutoLoginBefore28Minutes', async () => {
       const sessionStore = new InMemorySessionStore();
       sessionStore.saveSession({ channelId: 'factory_a', loginMode: LoginMode.PASSWORD_ONLY, cookies: 'old=1', lastAuthAt: 1000, createdAt: 1000, user: { userId: 'u001', userName: '张三', mobile: '', department: '', avatarUrl: '', rawChannelUserInfo: {} } });
-      const service = new AuthService(sessionStore, new InMemoryCredentialStore(), async (): Promise<AutoLoginResult> => ({ success: true, cookies: 'new=1' }));
-      const result = await service.ensureSessionFresh(1000 + 27 * 60 * 1000, 28, { service: ServiceType.AUTH, path: '/auto' });
+      const registry = new LoginStrategyRegistry();
+      registry.register(new FakeRefreshStrategy(true));
+      const method = createMethod();
+      const service = new AuthService(sessionStore, registry);
+      const result = await service.ensureSessionFresh(createChannel(method), method, 1000 + 27 * 60 * 1000);
       expect(result).assertTrue();
       expect(sessionStore.getSession()?.cookies).assertEqual('old=1');
     });
@@ -730,8 +863,11 @@ export default function authServiceTest() {
     it('refreshAfter28Minutes', async () => {
       const sessionStore = new InMemorySessionStore();
       sessionStore.saveSession({ channelId: 'factory_a', loginMode: LoginMode.PASSWORD_ONLY, cookies: 'old=1', lastAuthAt: 1000, createdAt: 1000, user: { userId: 'u001', userName: '张三', mobile: '', department: '', avatarUrl: '', rawChannelUserInfo: {} } });
-      const service = new AuthService(sessionStore, new InMemoryCredentialStore(), async (): Promise<AutoLoginResult> => ({ success: true, cookies: 'new=1' }));
-      const result = await service.ensureSessionFresh(1000 + 29 * 60 * 1000, 28, { service: ServiceType.AUTH, path: '/auto' });
+      const registry = new LoginStrategyRegistry();
+      registry.register(new FakeRefreshStrategy(true));
+      const method = createMethod();
+      const service = new AuthService(sessionStore, registry);
+      const result = await service.ensureSessionFresh(createChannel(method), method, 1000 + 29 * 60 * 1000);
       expect(result).assertTrue();
       expect(sessionStore.getSession()?.cookies).assertEqual('new=1');
       expect(sessionStore.getSession()?.lastAuthAt).assertEqual(1000 + 29 * 60 * 1000);
@@ -740,8 +876,11 @@ export default function authServiceTest() {
     it('clearSessionOnAutoLoginFailure', async () => {
       const sessionStore = new InMemorySessionStore();
       sessionStore.saveSession({ channelId: 'factory_a', loginMode: LoginMode.PASSWORD_ONLY, cookies: 'old=1', lastAuthAt: 1000, createdAt: 1000, user: { userId: 'u001', userName: '张三', mobile: '', department: '', avatarUrl: '', rawChannelUserInfo: {} } });
-      const service = new AuthService(sessionStore, new InMemoryCredentialStore(), async (): Promise<AutoLoginResult> => ({ success: false, cookies: '' }));
-      const result = await service.ensureSessionFresh(1000 + 29 * 60 * 1000, 28, { service: ServiceType.AUTH, path: '/auto' });
+      const registry = new LoginStrategyRegistry();
+      registry.register(new FakeRefreshStrategy(false));
+      const method = createMethod();
+      const service = new AuthService(sessionStore, registry);
+      const result = await service.ensureSessionFresh(createChannel(method), method, 1000 + 29 * 60 * 1000);
       expect(result).assertFalse();
       expect(sessionStore.getSession() === undefined).assertTrue();
     });
@@ -749,13 +888,13 @@ export default function authServiceTest() {
 }
 ```
 
-修改 `entry/src/test/List.test.ets` 引用 `authServiceTest()`。
+修改 `entry/src/test/List.test.ets` 引用 `loginStrategyRegistryTest()` 和 `authServiceTest()`。
 
 - [ ] **Step 2: 运行测试并确认失败**
 
 在 DevEco Studio 中运行本地单元测试。
 
-期望：`AuthService`、`InMemoryCredentialStore`、`InMemorySessionStore` 未定义。
+期望：`LoginStrategy`、`LoginStrategyRegistry`、`AuthService`、`InMemorySessionStore` 未定义。
 
 - [ ] **Step 3: 添加实现**
 
@@ -841,63 +980,203 @@ export class InMemoryCredentialStore implements CredentialStore {
 }
 ```
 
+创建 `entry/src/main/ets/auth/LoginStrategy.ets`：
+
+```ts
+import { LoginMode } from '../config/AppConstants';
+import { Channel, LoginMethodConfig } from '../models/Channel';
+
+export type LoginInput = Record<string, object | string | number | boolean>;
+
+export type RawLoginResult = Record<string, object | string | number | boolean>;
+
+export interface LoginResult {
+  rawLoginResult: RawLoginResult;
+}
+
+export interface LoginStrategy {
+  mode: LoginMode;
+  login(channel: Channel, method: LoginMethodConfig, input: LoginInput): Promise<LoginResult>;
+  autoLogin(channel: Channel, method: LoginMethodConfig): Promise<LoginResult>;
+  supportsAutoLogin(method: LoginMethodConfig): boolean;
+}
+```
+
+创建 `entry/src/main/ets/auth/LoginStrategyRegistry.ets`：
+
+```ts
+import { LoginMode } from '../config/AppConstants';
+import { LoginStrategy } from './LoginStrategy';
+
+export class LoginStrategyRegistry {
+  private strategies: Map<string, LoginStrategy> = new Map<string, LoginStrategy>();
+
+  register(strategy: LoginStrategy): void {
+    this.strategies.set(strategy.mode, strategy);
+  }
+
+  get(mode: LoginMode): LoginStrategy {
+    const strategy = this.strategies.get(mode);
+    if (!strategy) {
+      throw new Error(`Missing login strategy: ${mode}`);
+    }
+    return strategy;
+  }
+}
+```
+
+创建 `entry/src/main/ets/auth/PasswordOnlyLoginStrategy.ets`：
+
+```ts
+import { LoginMode } from '../config/AppConstants';
+import { Channel, LoginMethodConfig } from '../models/Channel';
+import { LoginInput, LoginResult, LoginStrategy } from './LoginStrategy';
+
+export type StrategyRequestExecutor = (channel: Channel, method: LoginMethodConfig, input: LoginInput) => Promise<LoginResult>;
+
+export class PasswordOnlyLoginStrategy implements LoginStrategy {
+  mode: LoginMode = LoginMode.PASSWORD_ONLY;
+
+  constructor(private executor: StrategyRequestExecutor) {}
+
+  async login(channel: Channel, method: LoginMethodConfig, input: LoginInput): Promise<LoginResult> {
+    return this.executor(channel, method, input);
+  }
+
+  async autoLogin(channel: Channel, method: LoginMethodConfig): Promise<LoginResult> {
+    if (!this.supportsAutoLogin(method)) {
+      throw new Error('Auto login is not supported');
+    }
+    return this.executor(channel, method, { autoLogin: true });
+  }
+
+  supportsAutoLogin(method: LoginMethodConfig): boolean {
+    return method.autoLoginPath !== undefined && method.credentialPolicy === 'rsa_encrypted_password';
+  }
+}
+```
+
+创建 `entry/src/main/ets/auth/PasswordSmsFirstDeviceLoginStrategy.ets`：
+
+```ts
+import { LoginMode } from '../config/AppConstants';
+import { Channel, LoginMethodConfig } from '../models/Channel';
+import { LoginInput, LoginResult, LoginStrategy } from './LoginStrategy';
+import { StrategyRequestExecutor } from './PasswordOnlyLoginStrategy';
+
+export class PasswordSmsFirstDeviceLoginStrategy implements LoginStrategy {
+  mode: LoginMode = LoginMode.PASSWORD_SMS_FIRST_DEVICE;
+
+  constructor(private executor: StrategyRequestExecutor) {}
+
+  async login(channel: Channel, method: LoginMethodConfig, input: LoginInput): Promise<LoginResult> {
+    return this.executor(channel, method, input);
+  }
+
+  async autoLogin(channel: Channel, method: LoginMethodConfig): Promise<LoginResult> {
+    if (!this.supportsAutoLogin(method)) {
+      throw new Error('Auto login is not supported');
+    }
+    return this.executor(channel, method, { autoLogin: true });
+  }
+
+  supportsAutoLogin(method: LoginMethodConfig): boolean {
+    return method.autoLoginPath !== undefined && method.credentialPolicy === 'rsa_encrypted_password';
+  }
+}
+```
+
+创建 `entry/src/main/ets/auth/SsoWebViewLoginStrategy.ets`：
+
+```ts
+import { LoginMode } from '../config/AppConstants';
+import { Channel, LoginMethodConfig } from '../models/Channel';
+import { LoginInput, LoginResult, LoginStrategy } from './LoginStrategy';
+import { StrategyRequestExecutor } from './PasswordOnlyLoginStrategy';
+
+export class SsoWebViewLoginStrategy implements LoginStrategy {
+  mode: LoginMode = LoginMode.SSO_WEBVIEW;
+
+  constructor(private executor: StrategyRequestExecutor) {}
+
+  async login(channel: Channel, method: LoginMethodConfig, input: LoginInput): Promise<LoginResult> {
+    return this.executor(channel, method, input);
+  }
+
+  async autoLogin(channel: Channel, method: LoginMethodConfig): Promise<LoginResult> {
+    if (!this.supportsAutoLogin(method)) {
+      throw new Error('SSO renewal is not supported');
+    }
+    return this.executor(channel, method, { renewalCredential: true });
+  }
+
+  supportsAutoLogin(method: LoginMethodConfig): boolean {
+    return method.renewalPath !== undefined && method.credentialPolicy === 'sso_renewal_credential';
+  }
+}
+```
+
 创建 `entry/src/main/ets/auth/AuthService.ets`：
 
 ```ts
 import { SessionStore } from '../app/SessionStore';
-import { CredentialStore } from './CredentialStore';
-import { LoginMode, ServiceType } from '../config/AppConstants';
-
-export interface AutoLoginEndpoint {
-  service: ServiceType;
-  path: string;
-}
-
-export interface AutoLoginResult {
-  success: boolean;
-  cookies: string;
-}
-
-export type AutoLoginExecutor = (channelId: string, loginMode: LoginMode, endpoint: AutoLoginEndpoint) => Promise<AutoLoginResult>;
+import { Channel, LoginMethodConfig } from '../models/Channel';
+import { normalizeLoginResult } from './UserNormalizer';
+import { LoginInput } from './LoginStrategy';
+import { LoginStrategyRegistry } from './LoginStrategyRegistry';
 
 export class AuthService {
   private refreshing: Promise<boolean> | undefined = undefined;
 
   constructor(
     private sessionStore: SessionStore,
-    private credentialStore: CredentialStore,
-    private executor: AutoLoginExecutor
+    private registry: LoginStrategyRegistry
   ) {}
 
-  async ensureSessionFresh(now: number, intervalMinutes: number, endpoint: AutoLoginEndpoint): Promise<boolean> {
+  async login(channel: Channel, method: LoginMethodConfig, input: LoginInput, now: number): Promise<boolean> {
+    const strategy = this.registry.get(method.mode);
+    const result = await strategy.login(channel, method, input);
+    const session = normalizeLoginResult(channel.id, method.mode, result.rawLoginResult, channel.userMapping, channel.cookieMapping, now);
+    this.sessionStore.saveSession(session);
+    return true;
+  }
+
+  async ensureSessionFresh(channel: Channel, method: LoginMethodConfig, now: number): Promise<boolean> {
     const session = this.sessionStore.getSession();
     if (!session) {
       return false;
     }
-    const intervalMs = intervalMinutes * 60 * 1000;
+    const intervalMs = channel.autoLogin.intervalMinutes * 60 * 1000;
     if (now - session.lastAuthAt <= intervalMs) {
       return true;
     }
     if (!this.refreshing) {
-      this.refreshing = this.runRefresh(now, endpoint);
+      this.refreshing = this.runRefresh(channel, method, now);
     }
     const result = await this.refreshing;
     this.refreshing = undefined;
     return result;
   }
 
-  private async runRefresh(now: number, endpoint: AutoLoginEndpoint): Promise<boolean> {
+  private async runRefresh(channel: Channel, method: LoginMethodConfig, now: number): Promise<boolean> {
     const session = this.sessionStore.getSession();
     if (!session) {
       return false;
     }
-    const result = await this.executor(session.channelId, session.loginMode, endpoint);
-    if (!result.success || result.cookies.length === 0) {
+    try {
+      const strategy = this.registry.get(method.mode);
+      if (!channel.autoLogin.enabled || !strategy.supportsAutoLogin(method)) {
+        this.sessionStore.clearSession();
+        return false;
+      }
+      const result = await strategy.autoLogin(channel, method);
+      const refreshedSession = normalizeLoginResult(channel.id, method.mode, result.rawLoginResult, channel.userMapping, channel.cookieMapping, now);
+      this.sessionStore.updateCookies(refreshedSession.cookies, now);
+      return true;
+    } catch (err) {
       this.sessionStore.clearSession();
       return false;
     }
-    this.sessionStore.updateCookies(result.cookies, now);
-    return true;
   }
 }
 ```
@@ -931,7 +1210,7 @@ export const appState = new AppState();
 
 运行：`git status --short`
 
-如果已初始化 git，提交：`git add entry/src/main/ets/app entry/src/main/ets/auth entry/src/test && git commit -m "feat: add session auto login flow"`。
+如果已初始化 git，提交：`git add entry/src/main/ets/app entry/src/main/ets/auth entry/src/test && git commit -m "feat: add extensible login strategy flow"`。
 
 ---
 
@@ -947,9 +1226,9 @@ export const appState = new AppState();
 
 ```ts
 import { ServiceType } from '../config/AppConstants';
-import { AutoLoginEndpoint, AuthService } from '../auth/AuthService';
+import { AuthService } from '../auth/AuthService';
 import { SessionStore } from '../app/SessionStore';
-import { ServiceMap } from '../models/Channel';
+import { Channel, LoginMethodConfig, ServiceMap } from '../models/Channel';
 import { mergeSafeHeaders, RequestHeaders } from './HeaderGuard';
 import { resolveServiceUrl } from './ServiceResolver';
 
@@ -971,9 +1250,10 @@ export type RequestSender = (record: HttpRequestRecord) => Promise<string>;
 export class HttpClient {
   constructor(
     private services: ServiceMap,
+    private channel: Channel,
+    private loginMethod: LoginMethodConfig,
     private sessionStore: SessionStore,
     private authService: AuthService,
-    private autoLoginEndpoint: AutoLoginEndpoint,
     private sender: RequestSender
   ) {}
 
@@ -988,7 +1268,7 @@ export class HttpClient {
   private async request(method: string, serviceType: ServiceType, apiPath: string, body: string, options?: HttpRequestOptions): Promise<string> {
     const session = this.sessionStore.getSession();
     if (!options?.skipAutoLogin) {
-      const fresh = await this.authService.ensureSessionFresh(Date.now(), 28, this.autoLoginEndpoint);
+      const fresh = await this.authService.ensureSessionFresh(this.channel, this.loginMethod, Date.now());
       if (!fresh) {
         throw new Error('登录状态已过期，请重新登录');
       }
@@ -1303,8 +1583,14 @@ channelConfigLoaderTest
 userNormalizerTest
 serviceResolverTest
 headerGuardTest
+loginStrategyRegistryTest
+appStateTest
 authServiceTest
+httpClientTest
+webBridgeTest
 ```
+
+当前命令行环境未识别 `hvigor` / `ohpm`，因此需要在 DevEco Studio 中执行上述测试。
 
 - [ ] **Step 2: 构建验证**
 

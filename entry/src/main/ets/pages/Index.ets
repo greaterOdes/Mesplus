@@ -1,23 +1,35 @@
+import { LoginNavDestination } from './navcomponent/LoginNavDestination';
+import { MainHomeNavDestination } from './navcomponent/MainHomeNavDestination';
+import { NavRouteName } from './navcomponent/NavRoutes';
+import { SsoWebViewNavDestination } from './navcomponent/SsoWebViewNavDestination';
+
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World';
+  private pathStack: NavPathStack = new NavPathStack();
+
+  aboutToAppear(): void {
+  }
+
+  aboutToDisappear(): void {
+  }
+
+  @Builder
+  NavDestinationBuilder(name: string) {
+    if (name === NavRouteName.MAIN_HOME) {
+      MainHomeNavDestination({ pathStack: this.pathStack })
+    } else if (name === NavRouteName.SSO_WEBVIEW) {
+      SsoWebViewNavDestination({ pathStack: this.pathStack })
+    }
+  }
 
   build() {
-    RelativeContainer() {
-      Text(this.message)
-        .id('HelloWorld')
-        .fontSize($r('app.float.page_text_font_size'))
-        .fontWeight(FontWeight.Bold)
-        .alignRules({
-          center: { anchor: '__container__', align: VerticalAlign.Center },
-          middle: { anchor: '__container__', align: HorizontalAlign.Center }
-        })
-        .onClick(() => {
-          this.message = 'Welcome';
-        })
+    Navigation(this.pathStack) {
+      LoginNavDestination({ pathStack: this.pathStack })
     }
-    .height('100%')
     .width('100%')
+    .height('100%')
+    .hideTitleBar(true)
+    .navDestination(this.NavDestinationBuilder)
   }
 }

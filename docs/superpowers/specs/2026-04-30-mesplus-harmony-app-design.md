@@ -109,7 +109,34 @@ entry/src/main/
     {
       "id": "factory_a",
       "name": "工厂A",
-      "loginModes": ["password_sms_first_device", "sso_webview"],
+      "loginMethods": [
+        {
+          "mode": "password_sms_first_device",
+          "title": "账号密码登录",
+          "authService": "auth",
+          "loginPath": "/login/password",
+          "smsVerifyPath": "/login/first-device/sms",
+          "autoLoginPath": "/session/auto-login",
+          "credentialPolicy": "rsa_encrypted_password"
+        },
+        {
+          "mode": "sso_webview",
+          "title": "统一身份认证",
+          "ssoService": "sso",
+          "loginPath": "/login",
+          "renewalService": "auth",
+          "renewalPath": "/session/sso-renewal",
+          "credentialPolicy": "sso_renewal_credential"
+        },
+        {
+          "mode": "password_only",
+          "title": "普通账号密码登录",
+          "authService": "auth",
+          "loginPath": "/login/password-only",
+          "autoLoginPath": "/session/auto-login",
+          "credentialPolicy": "rsa_encrypted_password"
+        }
+      ],
       "userMapping": {
         "userId": ["userId", "user_id", "id"],
         "userName": ["userName", "realName", "name"],
@@ -122,15 +149,7 @@ entry/src/main/
       },
       "autoLogin": {
         "enabled": true,
-        "intervalMinutes": 28,
-        "passwordLogin": {
-          "service": "auth",
-          "path": "/session/auto-login"
-        },
-        "ssoRenewal": {
-          "service": "auth",
-          "path": "/session/sso-renewal"
-        }
+        "intervalMinutes": 28
       },
       "services": {
         "auth": {
@@ -167,9 +186,38 @@ entry/src/main/
 - 必填服务配置缺失或不合法时，视为配置错误。
 - 当前选择的渠道需要持久化，下次打开 App 时默认选中上次渠道。
 
-## 登录方式
+## 登录方式扩展架构
 
-首版支持三种登录方式。
+登录模块采用“策略注册表 + 配置驱动流程”的设计，避免把不同登录方式写成集中式 `if/else` 分支。
+
+核心结构：
+
+```text
+LoginStrategy
+  mode
+  login(channel, loginMethod, input)
+  autoLogin(channel, loginMethod, credential)
+  supportsAutoLogin(loginMethod)
+
+LoginStrategyRegistry
+  register(strategy)
+  get(mode)
+
+AuthService
+  login(channel, loginMethod, input)
+  ensureSessionFresh()
+  autoLogin()
+```
+
+扩展规则：
+
+- `channels.json` 使用 `loginMethods` 配置每个渠道可用的登录方式和接口路径。
+- 每种登录方式对应一个独立 `LoginStrategy` 实现。
+- `AuthService` 只负责调度策略、保存 Session、触发自动登录和处理失败跳转，不写具体登录方式细节。
+- `LoginPanel` 根据 `loginMethods` 渲染可用登录入口，不直接判断具体接口地址。
+- 新增登录方式时，新增策略类和配置项，并在 `LoginStrategyRegistry` 注册；现有策略、网络层、用户归一化逻辑不需要修改。
+
+首版内置三种登录策略。
 
 `password_sms_first_device`：
 
@@ -193,7 +241,17 @@ entry/src/main/
 所有登录方式最终都进入同一条内部流程：
 
 ```text
-RawLoginResult -> UserNormalizer -> Session -> AppState.currentSession -> MainPage
+LoginStrategy -> RawLoginResult -> UserNormalizer -> Session -> AppState.currentSession -> MainPage
+```
+
+新增登录方式的流程：
+
+```text
+新增 XxxLoginStrategy
+  -> 在 LoginStrategyRegistry 注册 mode
+  -> 在 channels.json 的 loginMethods 中配置 mode 和接口路径
+  -> LoginPanel 自动展示该登录方式
+  -> AuthService 通过 registry 调度该策略
 ```
 
 ## 用户信息归一化
@@ -417,7 +475,7 @@ UI 在结构和视觉语言上高度接近微信，但业务内容体现工业�
 
 - 展示 App 名称和工业软件副标题。
 - 展示渠道选择器。
-- 根据当前渠道的 `loginModes` 动态渲染登录面板。
+- 根据当前渠道的 `loginMethods` 动态渲染登录面板。
 - 如果当前渠道有多种登录方式，提供轻量登录方式切换。
 - 配置错误、网络错误、登录失败通过 Toast 或弹窗提示。
 
