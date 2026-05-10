@@ -30,10 +30,10 @@ export struct MiniProgramSearch {
   build() {
     Column() {
       Row() {
-        Text('搜索')
+        Text($r('app.string.search_label'))
           .fontSize(14)
           .fontColor('#9CA3AF')
-        Text('设备 工单 看板 异常')
+        Text($r('app.string.search_keywords'))
           .fontSize(14)
           .fontColor('#9CA3AF')
           .margin({ left: 10 })

@@ -9,7 +9,7 @@
 @Component
 export struct WorkLogContent {
   @Builder
-  LogItem(time: string, title: string, status: string, color: string) {
+  LogItem(time: string, title: ResourceStr, status: ResourceStr, color: string) {
     Row() {
       Column() {
         Text(time)
@@ -37,18 +37,18 @@ export struct WorkLogContent {
   HeaderBar() {
     Row() {
       Column() {
-        Text('工作日志')
+        Text($r('app.string.worklog_title'))
           .fontSize(26)
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
-        Text('2026-05-01 现场记录')
+        Text($r('app.string.worklog_date_record'))
           .fontSize(14)
           .fontColor('#6B7280')
           .margin({ top: 6 })
       }
       .layoutWeight(1)
 
-      Button('新增日志')
+      Button($r('app.string.worklog_add_button'))
         .height(38)
         .fontSize(14)
         .fontColor('#FFFFFF')
@@ -62,9 +62,9 @@ export struct WorkLogContent {
   @Builder
   LogList() {
     Column() {
-      this.LogItem('08:30', '设备巡检完成', '已提交', '#07C160')
-      this.LogItem('11:10', '生产线换型记录', '待确认', '#D97706')
-      this.LogItem('15:40', '异常原因跟进', '处理中', '#2563EB')
+      this.LogItem('08:30', $r('app.string.worklog_item_inspection'), $r('app.string.status_submitted'), '#07C160')
+      this.LogItem('11:10', $r('app.string.worklog_item_changeover'), $r('app.string.status_pending_confirm'), '#D97706')
+      this.LogItem('15:40', $r('app.string.worklog_item_issue_followup'), $r('app.string.status_processing'), '#2563EB')
     }
     .width('100%')
     .padding({ left: 16, right: 16, top: 6, bottom: 6 })
@@ -75,11 +75,11 @@ export struct WorkLogContent {
   @Builder
   CreateLogPlaceholder() {
     Column() {
-      Text('新增日志占位')
+      Text($r('app.string.worklog_placeholder_title'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor('#111827')
-      Text('后续接入日志编辑、图片和定位能力')
+      Text($r('app.string.worklog_placeholder_subtitle'))
         .fontSize(13)
         .fontColor('#6B7280')
         .margin({ top: 8 })

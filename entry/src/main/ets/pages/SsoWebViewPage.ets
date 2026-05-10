@@ -11,15 +11,15 @@ export struct SsoWebViewContent {
   build() {
     RelativeContainer() {
       Column() {
-        Text('统一身份认证')
+        Text($r('app.string.sso_title'))
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
-        Text('SSO WebView 页面待接入')
+        Text($r('app.string.sso_placeholder_title'))
           .fontSize(15)
           .fontColor('#6B7280')
           .margin({ top: 12 })
-        Text('后续将在这里加载企业统一身份认证地址')
+        Text($r('app.string.sso_placeholder_subtitle'))
           .fontSize(13)
           .fontColor('#9CA3AF')
           .textAlign(TextAlign.Center)

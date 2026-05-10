@@ -38,18 +38,18 @@ export struct ContactsContent {
   build() {
     Scroll() {
       Column() {
-        Text('通讯录')
+        Text($r('app.string.contacts_title'))
           .fontSize(26)
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
           .width('100%')
-        Text('组织 部门 人员')
+        Text($r('app.string.contacts_subtitle'))
           .fontSize(14)
           .fontColor('#6B7280')
           .width('100%')
           .margin({ top: 6, bottom: 18 })
         Column() {
-          Text('制造中心')
+          Text($r('app.string.manufacturing_center'))
             .fontSize(17)
             .fontWeight(FontWeight.Medium)
             .fontColor('#111827')
@@ -63,7 +63,7 @@ export struct ContactsContent {
         .backgroundColor('#FFFFFF')
         .borderRadius(16)
         Column() {
-          Text('仓储物流')
+          Text($r('app.string.warehouse_logistics'))
             .fontSize(17)
             .fontWeight(FontWeight.Medium)
             .fontColor('#111827')

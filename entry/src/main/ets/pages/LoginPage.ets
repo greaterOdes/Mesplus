@@ -17,11 +17,11 @@ export struct LoginContent {
   build() {
     RelativeContainer() {
       Column() {
-        Text('Mesplus')
+        Text($r('app.string.app_name'))
           .fontSize(38)
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
-        Text('工业协同平台')
+        Text($r('app.string.industrial_platform'))
           .fontSize(16)
           .fontColor('#6B7280')
           .margin({ top: 8, bottom: 28 })

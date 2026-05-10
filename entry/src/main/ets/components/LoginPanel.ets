@@ -16,7 +16,7 @@ export struct LoginPanel {
 
   @Builder
   AccountInput() {
-    TextInput({ placeholder: '账号' })
+    TextInput({ placeholder: $r('app.string.account_placeholder') })
       .height(48)
       .fontSize(15)
       .backgroundColor('#F7F7F7')
@@ -30,7 +30,7 @@ export struct LoginPanel {
 
   @Builder
   PasswordInput() {
-    TextInput({ placeholder: '密码' })
+    TextInput({ placeholder: $r('app.string.password_placeholder') })
       .type(InputType.Password)
       .height(48)
       .fontSize(15)
@@ -46,7 +46,7 @@ export struct LoginPanel {
   @Builder
   SmsCodeRow() {
     Row() {
-      TextInput({ placeholder: '短信验证码' })
+      TextInput({ placeholder: $r('app.string.sms_code_placeholder') })
         .height(48)
         .fontSize(15)
         .backgroundColor('#F7F7F7')
@@ -57,7 +57,7 @@ export struct LoginPanel {
           this.smsCode = value;
         })
 
-      Button('获取')
+      Button($r('app.string.get_sms_code'))
         .height(48)
         .fontSize(14)
         .fontColor('#07C160')
@@ -71,7 +71,7 @@ export struct LoginPanel {
 
   @Builder
   LoginActions() {
-    Text('统一身份认证登录')
+    Text($r('app.string.sso_login'))
       .fontSize(14)
       .fontColor('#07C160')
       .width('100%')
@@ -81,7 +81,7 @@ export struct LoginPanel {
         this.onSsoLogin();
       })
 
-    Button('登录')
+    Button($r('app.string.login_button'))
       .width('100%')
       .height(48)
       .fontSize(17)
@@ -97,7 +97,7 @@ export struct LoginPanel {
 
   build() {
     Column() {
-      Text('登录 Mesplus')
+      Text($r('app.string.login_title'))
         .fontSize(20)
         .fontWeight(FontWeight.Bold)
         .fontColor('#111827')

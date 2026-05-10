@@ -34,12 +34,12 @@ export struct HomeContent {
   build() {
     Scroll() {
       Column() {
-        Text('Mesplus 工作台')
+        Text($r('app.string.home_title'))
           .fontSize(26)
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
           .width('100%')
-        Text('工业现场协同入口')
+        Text($r('app.string.home_subtitle'))
           .fontSize(14)
           .fontColor('#6B7280')
           .width('100%')

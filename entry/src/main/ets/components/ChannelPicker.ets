@@ -12,7 +12,7 @@ export struct ChannelPicker {
 
   build() {
     Row() {
-      Text('当前渠道')
+      Text($r('app.string.current_channel'))
         .fontSize(14)
         .fontColor('#6B7280')
       Blank()

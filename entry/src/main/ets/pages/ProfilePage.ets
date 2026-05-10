@@ -11,7 +11,7 @@ export struct ProfileContent {
   onLogout: () => void = (): void => {};
 
   @Builder
-  InfoRow(label: string, value: string) {
+  InfoRow(label: ResourceStr, value: ResourceStr) {
     Row() {
       Text(label)
         .fontSize(15)
@@ -28,7 +28,7 @@ export struct ProfileContent {
   @Builder
   UserCard() {
     Row() {
-      Text('用')
+      Text($r('app.string.profile_avatar_text'))
         .fontSize(28)
         .fontWeight(FontWeight.Bold)
         .fontColor('#FFFFFF')
@@ -39,11 +39,11 @@ export struct ProfileContent {
         .borderRadius(12)
 
       Column() {
-        Text('Mesplus 用户')
+        Text($r('app.string.profile_user_name'))
           .fontSize(22)
           .fontWeight(FontWeight.Bold)
           .fontColor('#111827')
-        Text('工业协同平台')
+        Text($r('app.string.industrial_platform'))
           .fontSize(14)
           .fontColor('#6B7280')
           .margin({ top: 6 })
@@ -59,8 +59,8 @@ export struct ProfileContent {
   @Builder
   InfoGroup() {
     Column() {
-      this.InfoRow('渠道', '企业微信渠道')
-      this.InfoRow('登录方式', '账号 密码 短信 SSO')
+      this.InfoRow($r('app.string.profile_channel_label'), $r('app.string.profile_channel_value'))
+      this.InfoRow($r('app.string.profile_login_methods_label'), $r('app.string.profile_login_methods_value'))
     }
     .width('100%')
     .padding({ left: 18, right: 18, top: 6, bottom: 6 })
@@ -72,8 +72,8 @@ export struct ProfileContent {
   @Builder
   SettingGroup() {
     Column() {
-      this.InfoRow('设置', '待接入')
-      this.InfoRow('关于', 'Mesplus')
+      this.InfoRow($r('app.string.profile_settings_label'), $r('app.string.pending_integration'))
+      this.InfoRow($r('app.string.profile_about_label'), $r('app.string.app_name'))
     }
     .width('100%')
     .padding({ left: 18, right: 18, top: 6, bottom: 6 })
@@ -84,7 +84,7 @@ export struct ProfileContent {
 
   @Builder
   LogoutButton() {
-    Button('退出登录')
+    Button($r('app.string.logout_button'))
       .width('100%')
       .height(48)
       .fontSize(16)
