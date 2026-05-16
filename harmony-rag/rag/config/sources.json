@@ -1,0 +1,58 @@
+{
+  "repoRoot": "../..",
+  "sources": [
+    {
+      "id": "project-arkts-arkui-rules",
+      "type": "project_rules",
+      "path": "docs/opencode/arkts-arkui-rules.md",
+      "priority": 100,
+      "include": ["**/*.md"]
+    },
+    {
+      "id": "openharmony-docs",
+      "type": "official_docs",
+      "path": "harmony-rag/openharmonyDocs/zh-cn",
+      "priority": 60,
+      "include": [
+        "application-dev/ui/**/*.md",
+        "application-dev/internationalization/**/*.md",
+        "application-dev/network/**/*.md",
+        "application-dev/web/**/*.md",
+        "application-dev/windowmanager/**/*.md",
+        "arkts-utils/**/*.md",
+        "quick-start/**/*.md"
+      ]
+    },
+    {
+      "id": "harmonyos-samples",
+      "type": "official_sample",
+      "path": "harmony-rag/HarmonyOS_Samples",
+      "priority": 70,
+      "include": ["**/*.ets", "**/*.json", "**/*.json5", "**/*.md"]
+    },
+    {
+      "id": "mesplus-project-code",
+      "type": "project_code",
+      "path": "entry/src/main/ets",
+      "priority": 75,
+      "include": ["**/*.ets"]
+    }
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/build/**",
+    "**/figures/**",
+    "**/release-notes/**",
+    "**/.preview/**",
+    "**/oh_modules/**",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.gif",
+    "**/*.svg",
+    "**/*.zip",
+    "**/*.xlsx",
+    "**/*.xlsm"
+  ]
+}

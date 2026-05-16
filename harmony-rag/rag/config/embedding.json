@@ -1,0 +1,21 @@
+{
+  "provider": "ollama",
+  "baseUrl": "http://127.0.0.1:11434",
+  "model": "bge-m3",
+  "batchSize": 32,
+  "requestTimeoutMs": 120000,
+  "embeddingMaxChars": 8000,
+  "chunk": {
+    "markdownMaxChars": 4000,
+    "markdownOverlapChars": 240,
+    "codeMaxChars": 4800,
+    "codeOverlapChars": 200
+  },
+  "retrieval": {
+    "topK": 12,
+    "vectorWeight": 0.7,
+    "keywordWeight": 0.3,
+    "priorityWeight": 0.08,
+    "alwaysIncludeSourceTypes": ["project_rules"]
+  }
+}

@@ -1,0 +1,6 @@
+indexes/vector/*.jsonl
+indexes/keyword/*.json
+reports/*.json
+!indexes/vector/.gitkeep
+!indexes/keyword/.gitkeep
+!reports/.gitkeep
