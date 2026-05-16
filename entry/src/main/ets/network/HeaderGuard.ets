@@ -1,3 +1,11 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
+/**
+ * @since: 2026-04-30 23-35-10
+ * @Author: @greaterOdes
+ */
 export interface RequestHeaders {
   [key: string]: string;
 }
@@ -19,7 +27,6 @@ export function mergeSafeHeaders(customHeaders: RequestHeaders | undefined, cook
   const headers: RequestHeaders = {
     'Content-Type': 'application/json'
   };
-
   if (customHeaders !== undefined) {
     Object.keys(customHeaders).forEach((name: string) => {
       validateHeaderName(name);
@@ -28,7 +35,6 @@ export function mergeSafeHeaders(customHeaders: RequestHeaders | undefined, cook
       headers[name] = value;
     });
   }
-
   if (cookies.length > 0) {
     validateHeaderValue(cookies);
     headers['Cookie'] = cookies;

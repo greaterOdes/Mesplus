@@ -1,3 +1,11 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
+/**
+ * @since: 2026-05-01 00-48-18
+ * @Author: @greaterOdes
+ */
 @Component
 export struct MiniProgramSearch {
   @Builder
@@ -7,7 +15,6 @@ export struct MiniProgramSearch {
         .fontSize(15)
         .fontWeight(FontWeight.Medium)
         .fontColor('#111827')
-
       Text(desc)
         .fontSize(12)
         .fontColor('#6B7280')
@@ -23,11 +30,10 @@ export struct MiniProgramSearch {
   build() {
     Column() {
       Row() {
-        Text('搜索')
+        Text($r('app.string.search_label'))
           .fontSize(14)
           .fontColor('#9CA3AF')
-
-        Text('设备 工单 看板 异常')
+        Text($r('app.string.search_keywords'))
           .fontSize(14)
           .fontColor('#9CA3AF')
           .margin({ left: 10 })
@@ -38,7 +44,6 @@ export struct MiniProgramSearch {
       .backgroundColor('#F3F4F6')
       .borderRadius(21)
       .alignItems(VerticalAlign.Center)
-
       Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.SpaceBetween }) {
         this.FeatureEntry('设备巡检', '点检路线')
         this.FeatureEntry('工单处理', '待办任务')

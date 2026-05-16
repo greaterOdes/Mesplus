@@ -1,8 +1,16 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { LoginMode } from '../config/AppConstants';
 import { CookieMapping, FieldMapping } from '../models/Channel';
 import { Session, SessionCookie } from '../models/Session';
 import { ChannelUserInfoObject, ChannelUserInfoValue, UserProfile } from '../models/UserProfile';
 
+/**
+ * @since: 2026-04-30 23-24-49
+ * @Author: @greaterOdes
+ */
 export function normalizeLoginResult(
   channelId: string,
   loginMode: LoginMode,
@@ -22,6 +30,7 @@ export function normalizeLoginResult(
   user.avatarUrl = optionalMappedString(raw, userMapping, 'avatarUrl');
 
   const cookies = extractCookies(raw, cookieMapping);
+
   if (cookies.length === 0) {
     throw new Error('cookies must be non-empty');
   }
@@ -85,7 +94,6 @@ function requireStringValue(raw: ChannelUserInfoObject, key: string, label: stri
   if (!Object.prototype.hasOwnProperty.call(raw, key)) {
     throw new Error(`${label} is missing`);
   }
-
   const value: ChannelUserInfoValue = raw[key];
   if (typeof value !== 'string') {
     throw new Error(`${label} must be string`);

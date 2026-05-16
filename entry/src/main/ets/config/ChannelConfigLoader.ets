@@ -1,7 +1,16 @@
+﻿/*
+ * Copyright (c) 2026 Huawei Machine Co., Ltd.
+ */
+
 import { DEFAULT_AUTO_LOGIN_INTERVAL_MINUTES, GatewayMode, LoginMode, ServiceType } from './AppConstants';
 import { AutoLoginConfig, Channel, ChannelConfig, CookieMapping, FieldMapping, LoginMethodConfig, ServiceGatewayConfig, ServiceMap } from '../models/Channel';
 
 type JsonValue = string | number | boolean | JsonObject | JsonValue[] | null;
+
+/**
+ * @since: 2026-04-30 23-13-58
+ * @Author: @greaterOdes
+ */
 interface JsonObject {
   [key: string]: JsonValue;
 }
@@ -12,12 +21,10 @@ export function parseChannelConfig(jsonText: string): ChannelConfig {
   if (!Array.isArray(channelsValue) || channelsValue.length === 0) {
     throw new Error('channels must be a non-empty array');
   }
-
   const channels: Channel[] = [];
   channelsValue.forEach((value: JsonValue, index: number) => {
     channels.push(parseChannel(toJsonObject(value, `channels[${index}]`), index));
   });
-
   return { channels };
 }
 
@@ -35,13 +42,11 @@ function parseChannel(value: JsonObject, index: number): Channel {
   if (!Array.isArray(loginMethodsValue) || loginMethodsValue.length === 0) {
     throw new Error(`${label}.loginMethods must be a non-empty array`);
   }
-
   const loginMethods: LoginMethodConfig[] = [];
   loginMethodsValue.forEach((methodValue: JsonValue, methodIndex: number) => {
     const methodLabel = `${label}.loginMethods[${methodIndex}]`;
     loginMethods.push(parseLoginMethod(toJsonObject(methodValue, methodLabel), methodLabel));
   });
-
   return {
     id: requireString(value, 'id', label),
     name: requireString(value, 'name', label),
@@ -71,7 +76,6 @@ function parseService(value: JsonObject, label: string): ServiceGatewayConfig {
     originalGateway: requireString(value, 'originalGateway', label),
     gatewayMode: parseGatewayMode(requireString(value, 'gatewayMode', label), `${label}.gatewayMode`)
   };
-
   return service;
 }
 
@@ -82,14 +86,12 @@ function parseLoginMethod(value: JsonObject, label: string): LoginMethodConfig {
     credentialPolicy: requireString(value, 'credentialPolicy', label),
     loginPath: requireString(value, 'loginPath', label)
   };
-
   method.authService = parseOptionalService(value, 'authService', label);
   method.ssoService = parseOptionalService(value, 'ssoService', label);
   method.renewalService = parseOptionalService(value, 'renewalService', label);
   method.smsVerifyPath = parseOptionalString(value, 'smsVerifyPath', label);
   method.autoLoginPath = parseOptionalString(value, 'autoLoginPath', label);
   method.renewalPath = parseOptionalString(value, 'renewalPath', label);
-
   return method;
 }
 
@@ -97,7 +99,6 @@ function parseFieldMappings(value: JsonValue | undefined, label: string): FieldM
   if (!Array.isArray(value) || value.length === 0) {
     throw new Error(`${label} must be a non-empty array`);
   }
-
   const mappings: FieldMapping[] = [];
   value.forEach((mappingValue: JsonValue, index: number) => {
     const mapping = toJsonObject(mappingValue, `${label}[${index}]`);
@@ -113,7 +114,6 @@ function parseCookieMappings(value: JsonValue | undefined, label: string): Cooki
   if (!Array.isArray(value) || value.length === 0) {
     throw new Error(`${label} must be a non-empty array`);
   }
-
   const mappings: CookieMapping[] = [];
   value.forEach((mappingValue: JsonValue, index: number) => {
     const mapping = toJsonObject(mappingValue, `${label}[${index}]`);
@@ -134,7 +134,6 @@ function parseAutoLogin(value: JsonObject, label: string): AutoLoginConfig {
   if (intervalMinutes !== undefined && typeof intervalMinutes !== 'number') {
     throw new Error(`${label}.autoLogin.intervalMinutes must be number`);
   }
-
   return {
     enabled,
     intervalMinutes: typeof intervalMinutes === 'number' ? intervalMinutes : DEFAULT_AUTO_LOGIN_INTERVAL_MINUTES
