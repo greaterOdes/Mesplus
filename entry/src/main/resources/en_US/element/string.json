@@ -2,7 +2,7 @@
   "string": [
     { "name": "module_desc", "value": "module description" },
     { "name": "EntryAbility_desc", "value": "description" },
-    { "name": "EntryAbility_label", "value": "label" },
+    { "name": "EntryAbility_label", "value": "Mesplus" },
     { "name": "app_name", "value": "Mesplus" },
     { "name": "industrial_platform", "value": "Industrial Collaboration Platform" },
     { "name": "login_title", "value": "Login Mesplus" },
