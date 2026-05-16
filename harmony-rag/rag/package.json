@@ -1,0 +1,15 @@
+{
+  "name": "harmony-rag",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "rag:scan": "node scripts/scan-sources.mjs",
+    "rag:build": "node scripts/build-index.mjs",
+    "rag:query": "node scripts/query.mjs",
+    "rag:inspect": "node scripts/inspect-index.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
