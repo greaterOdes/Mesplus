@@ -7,9 +7,8 @@
  * @Author: @greaterOdes
  */
 export enum LoginMode {
-  PASSWORD = 'PASSWORD',
-  SMS = 'SMS',
-  SSO = 'SSO'
+  MAG = 'MAG',
+  IDASS = 'IDASS'
 }
 
 export enum ServiceType {

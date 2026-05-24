@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@ohos/hypium';
 import { parseChannelConfig } from '../main/ets/config/ChannelConfigLoader';
 import { GatewayMode, LoginMode, ServiceType } from '../main/ets/config/AppConstants';
-import { PasswordOnlyLoginStrategy } from '../main/ets/auth/PasswordOnlyLoginStrategy';
+import { PasswordSmsFirstDeviceLoginStrategy } from '../main/ets/auth/PasswordSmsFirstDeviceLoginStrategy';
 import { SsoWebViewLoginStrategy } from '../main/ets/auth/SsoWebViewLoginStrategy';
 import { Channel, LoginMethodConfig } from '../main/ets/models/Channel';
 import { ChannelUserInfoObject } from '../main/ets/models/UserProfile';
@@ -18,19 +18,24 @@ const VALID_CONFIG: string = '{' +
   '"file":{"type":"file","baseUrl":"https://file.example.com","magGateway":"https://mag.example.com/file","originalGateway":"https://origin.example.com/file","gatewayMode":"ORIGINAL"}' +
   '},' +
   '"loginMethods":[{' +
-  '"mode":"PASSWORD",' +
-  '"title":"Password Login",' +
+  '"mode":"MAG",' +
+  '"title":"MAG",' +
   '"credentialPolicy":"rsa_encrypted_password",' +
   '"loginPath":"/auth/login",' +
   '"authService":"auth",' +
+  '"smsSendPath":"/auth/sms/send",' +
+  '"emailSendPath":"/auth/email/send",' +
+  '"mfaVerifyPath":"/auth/mfa/verify",' +
   '"smsVerifyPath":"/auth/sms/verify",' +
   '"autoLoginPath":"/auth/auto-login"' +
   '},{' +
-  '"mode":"SSO",' +
-  '"title":"SSO Login",' +
+  '"mode":"IDASS",' +
+  '"title":"IDASS",' +
   '"credentialPolicy":"sso_renewal_credential",' +
   '"loginPath":"/sso/login",' +
   '"ssoService":"sso",' +
+  '"idassCallbackName":"window.Loader.intoApp",' +
+  '"mtokenAuthPath":"/sso/mtoken-auth",' +
   '"renewalService":"sso",' +
   '"renewalPath":"/sso/renewal"' +
   '}],' +
@@ -89,18 +94,21 @@ export default function channelConfigLoaderTest() {
       const config = parseChannelConfig(VALID_CONFIG);
 
       expect(config.channels[0].loginMethods.length).assertEqual(2);
-      expect(config.channels[0].loginMethods[0].mode).assertEqual(LoginMode.PASSWORD);
+      expect(config.channels[0].loginMethods[0].mode).assertEqual(LoginMode.MAG);
       expect(config.channels[0].loginMethods[0].authService).assertEqual(ServiceType.AUTH);
-      expect(config.channels[0].loginMethods[1].mode).assertEqual(LoginMode.SSO);
+      expect(config.channels[0].loginMethods[0].mfaVerifyPath).assertEqual('/auth/mfa/verify');
+      expect(config.channels[0].loginMethods[1].mode).assertEqual(LoginMode.IDASS);
+      expect(config.channels[0].loginMethods[1].idassCallbackName).assertEqual('window.Loader.intoApp');
+      expect(config.channels[0].loginMethods[1].mtokenAuthPath).assertEqual('/sso/mtoken-auth');
       expect(config.channels[0].loginMethods[1].renewalPath).assertEqual('/sso/renewal');
     });
 
     it('parses rawfile credential policies that support auto login', 0, () => {
       const config = parseChannelConfig(VALID_CONFIG);
-      const passwordStrategy = new PasswordOnlyLoginStrategy(new StubExecutor());
+      const magStrategy = new PasswordSmsFirstDeviceLoginStrategy(new StubExecutor());
       const ssoStrategy = new SsoWebViewLoginStrategy(new StubExecutor());
 
-      expect(passwordStrategy.supportsAutoLogin(config.channels[0].loginMethods[0])).assertEqual(true);
+      expect(magStrategy.supportsAutoLogin(config.channels[0].loginMethods[0])).assertEqual(true);
       expect(ssoStrategy.supportsAutoLogin(config.channels[0].loginMethods[1])).assertEqual(true);
     });
 
@@ -135,7 +143,7 @@ export default function channelConfigLoaderTest() {
     });
 
     it('throws when loginMethods is empty', 0, () => {
-      const emptyLoginMethods = VALID_CONFIG.replace('"loginMethods":[{"mode":"PASSWORD","title":"Password Login","credentialPolicy":"rsa_encrypted_password","loginPath":"/auth/login","authService":"auth","smsVerifyPath":"/auth/sms/verify","autoLoginPath":"/auth/auto-login"},{"mode":"SSO","title":"SSO Login","credentialPolicy":"sso_renewal_credential","loginPath":"/sso/login","ssoService":"sso","renewalService":"sso","renewalPath":"/sso/renewal"}]', '"loginMethods":[]');
+      const emptyLoginMethods = VALID_CONFIG.replace(/"loginMethods":\[.*\],"userMapping"/, '"loginMethods":[],"userMapping"');
 
       expect(didParseThrow(emptyLoginMethods)).assertEqual(true);
     });

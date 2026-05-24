@@ -16,6 +16,6 @@ export struct SsoWebViewNavDestination {
     NavDestination() {
       SsoWebViewContent()
     }
-    .title('统一身份认证')
+    .title('IDASS')
   }
 }

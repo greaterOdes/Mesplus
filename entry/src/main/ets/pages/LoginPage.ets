@@ -2,7 +2,6 @@
  * Copyright (c) 2026 Huawei Machine Co., Ltd.
  */
 
-import { ChannelPicker } from '../components/ChannelPicker';
 import { LoginPanel } from '../components/LoginPanel';
 
 /**
@@ -16,17 +15,45 @@ export struct LoginContent {
 
   build() {
     RelativeContainer() {
+      Circle()
+        .width(210)
+        .height(210)
+        .fill('rgba(122,162,255,0.16)')
+        .alignRules({
+          left: { anchor: '__container__', align: HorizontalAlign.Start },
+          bottom: { anchor: '__container__', align: VerticalAlign.Bottom }
+        })
+        .margin({ left: -76, bottom: -62 })
+
+      Circle()
+        .width(190)
+        .height(190)
+        .fill('rgba(255,255,255,0.78)')
+        .alignRules({
+          right: { anchor: '__container__', align: HorizontalAlign.End },
+          top: { anchor: '__container__', align: VerticalAlign.Top }
+        })
+        .margin({ right: -58, top: -46 })
+
       Column() {
-        Text($r('app.string.app_name'))
-          .fontSize(38)
+        Text('M')
+          .width(58)
+          .height(58)
+          .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#111827')
-        Text($r('app.string.industrial_platform'))
-          .fontSize(16)
-          .fontColor('#6B7280')
-          .margin({ top: 8, bottom: 28 })
-        ChannelPicker({ channelName: '企业微信渠道' })
-          .margin({ bottom: 14 })
+          .fontColor('#5C6572')
+          .textAlign(TextAlign.Center)
+          .backgroundColor('#FFFFFF')
+          .borderRadius(16)
+          .margin({ bottom: 18 })
+        Text($r('app.string.app_name'))
+          .fontSize(34)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#1D1D1F')
+        Text($r('app.string.login_subtitle_precision_access'))
+          .fontSize(14)
+          .fontColor('#7A828D')
+          .margin({ top: 8, bottom: 34 })
         LoginPanel({
           onLoginSuccess: this.onLoginSuccess,
           onSsoLogin: this.onSsoLogin
@@ -42,6 +69,6 @@ export struct LoginContent {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F2F4')
+    .backgroundColor('#F4F6F9')
   }
 }

@@ -12,7 +12,7 @@ import { LoginStrategy, LoginStrategyExecutor } from './LoginStrategy';
  * @Author: @greaterOdes
  */
 export class PasswordSmsFirstDeviceLoginStrategy implements LoginStrategy {
-  mode: LoginMode = LoginMode.SMS;
+  mode: LoginMode = LoginMode.MAG;
   private executor: LoginStrategyExecutor;
 
   constructor(executor: LoginStrategyExecutor) {

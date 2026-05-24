@@ -12,7 +12,7 @@ import { LoginStrategy, LoginStrategyExecutor } from './LoginStrategy';
  * @Author: @greaterOdes
  */
 export class SsoWebViewLoginStrategy implements LoginStrategy {
-  mode: LoginMode = LoginMode.SSO;
+  mode: LoginMode = LoginMode.IDASS;
   private executor: LoginStrategyExecutor;
 
   constructor(executor: LoginStrategyExecutor) {
