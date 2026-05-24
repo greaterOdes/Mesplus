@@ -49,6 +49,42 @@
       "value": "Login"
     },
     {
+      "name": "login_subtitle_precision_access",
+      "value": "Precision manufacturing access"
+    },
+    {
+      "name": "mag_login_label",
+      "value": "MAG"
+    },
+    {
+      "name": "idass_login_label",
+      "value": "IDASS"
+    },
+    {
+      "name": "device_secure_hint",
+      "value": "Device trust and identity verification are protected"
+    },
+    {
+      "name": "two_factor_title",
+      "value": "Two-factor verification"
+    },
+    {
+      "name": "two_factor_subtitle",
+      "value": "This is the first login on this device. Choose a verification method."
+    },
+    {
+      "name": "masked_mobile_label",
+      "value": "SMS to 138****0000"
+    },
+    {
+      "name": "masked_email_label",
+      "value": "Email to m***@mesplus.com"
+    },
+    {
+      "name": "idass_web_prompt",
+      "value": "Open enterprise identity page and return MTOKEN securely"
+    },
+    {
       "name": "current_channel",
       "value": "Current Channel"
     },
@@ -135,6 +171,26 @@
     {
       "name": "sso_placeholder_subtitle",
       "value": "Enterprise unified authentication URL will be loaded here"
+    },
+    {
+      "name": "idass_bridge_title",
+      "value": "IDASS Bridge Ready"
+    },
+    {
+      "name": "idass_bridge_subtitle",
+      "value": "The page must call window.Loader.intoApp with a JSON MTOKEN payload after authentication."
+    },
+    {
+      "name": "idass_callback_label",
+      "value": "Callback"
+    },
+    {
+      "name": "idass_payload_label",
+      "value": "Payload"
+    },
+    {
+      "name": "idass_payload_example",
+      "value": "{\"mtoken\":\"xxx\",\"user\":{}}"
     },
     {
       "name": "worklog_title",

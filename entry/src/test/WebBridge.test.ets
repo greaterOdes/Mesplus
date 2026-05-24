@@ -17,10 +17,15 @@ export default function webBridgeTest() {
     });
 
     it('parses valid SSO callback payload', 0, () => {
-      const payload = parseSsoCallbackPayload('{"code":"sso-code-1001"}');
+      const payload = parseSsoCallbackPayload('{"mtoken":"m-1001","user":{"userId":"u-1001"}}');
 
-      expect(SSO_CALLBACK_NAME).assertEqual('MesplusSSOCallback');
-      expect(payload['code']).assertEqual('sso-code-1001');
+      expect(SSO_CALLBACK_NAME).assertEqual('window.Loader.intoApp');
+      expect(payload.mtoken).assertEqual('m-1001');
+      expect(payload.user.userId).assertEqual('u-1001');
+    });
+
+    it('throws when SSO callback payload misses mtoken', 0, () => {
+      expect(didParseThrow('{"user":{"userId":"u-1001"}}')).assertEqual(true);
     });
 
     it('throws for null SSO callback payload JSON', 0, () => {

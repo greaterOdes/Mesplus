@@ -70,6 +70,16 @@ export interface LoginMethodConfig {
   renewalService?: ServiceType;
   /** 定义 smsVerifyPath 字段。 */
   smsVerifyPath?: string;
+  /** 定义 smsSendPath 字段。 */
+  smsSendPath?: string;
+  /** 定义 emailSendPath 字段。 */
+  emailSendPath?: string;
+  /** 定义 mfaVerifyPath 字段。 */
+  mfaVerifyPath?: string;
+  /** 定义 idassCallbackName 字段。 */
+  idassCallbackName?: string;
+  /** 定义 mtokenAuthPath 字段。 */
+  mtokenAuthPath?: string;
   /** 定义 autoLoginPath 字段。 */
   autoLoginPath?: string;
   /** 定义 renewalPath 字段。 */

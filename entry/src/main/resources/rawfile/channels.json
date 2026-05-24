@@ -36,20 +36,25 @@
       },
       "loginMethods": [
         {
-          "mode": "PASSWORD",
-          "title": "Password Login",
+          "mode": "MAG",
+          "title": "MAG",
           "credentialPolicy": "rsa_encrypted_password",
           "loginPath": "/auth/login",
           "authService": "auth",
+          "smsSendPath": "/auth/sms/send",
+          "emailSendPath": "/auth/email/send",
+          "mfaVerifyPath": "/auth/mfa/verify",
           "smsVerifyPath": "/auth/sms/verify",
           "autoLoginPath": "/auth/auto-login"
         },
         {
-          "mode": "SSO",
-          "title": "SSO Login",
+          "mode": "IDASS",
+          "title": "IDASS",
           "credentialPolicy": "sso_renewal_credential",
           "loginPath": "/sso/login",
           "ssoService": "sso",
+          "idassCallbackName": "window.Loader.intoApp",
+          "mtokenAuthPath": "/sso/mtoken-auth",
           "renewalService": "sso",
           "renewalPath": "/sso/renewal"
         }

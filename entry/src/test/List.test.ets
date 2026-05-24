@@ -8,6 +8,7 @@ import authServiceTest from './AuthService.test';
 import appStateTest from './AppState.test';
 import httpClientTest from './HttpClient.test';
 import webBridgeTest from './WebBridge.test';
+import loginFlowModelsTest from './LoginFlowModels.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -20,4 +21,5 @@ export default function testsuite() {
   appStateTest();
   httpClientTest();
   webBridgeTest();
+  loginFlowModelsTest();
 }

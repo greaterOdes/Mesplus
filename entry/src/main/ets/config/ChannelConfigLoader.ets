@@ -90,6 +90,11 @@ function parseLoginMethod(value: JsonObject, label: string): LoginMethodConfig {
   method.ssoService = parseOptionalService(value, 'ssoService', label);
   method.renewalService = parseOptionalService(value, 'renewalService', label);
   method.smsVerifyPath = parseOptionalString(value, 'smsVerifyPath', label);
+  method.smsSendPath = parseOptionalString(value, 'smsSendPath', label);
+  method.emailSendPath = parseOptionalString(value, 'emailSendPath', label);
+  method.mfaVerifyPath = parseOptionalString(value, 'mfaVerifyPath', label);
+  method.idassCallbackName = parseOptionalString(value, 'idassCallbackName', label);
+  method.mtokenAuthPath = parseOptionalString(value, 'mtokenAuthPath', label);
   method.autoLoginPath = parseOptionalString(value, 'autoLoginPath', label);
   method.renewalPath = parseOptionalString(value, 'renewalPath', label);
   return method;
@@ -151,14 +156,11 @@ function parseGatewayMode(value: string, label: string): GatewayMode {
 }
 
 function parseLoginMode(value: string, label: string): LoginMode {
-  if (value === LoginMode.PASSWORD) {
-    return LoginMode.PASSWORD;
+  if (value === LoginMode.MAG) {
+    return LoginMode.MAG;
   }
-  if (value === LoginMode.SMS) {
-    return LoginMode.SMS;
-  }
-  if (value === LoginMode.SSO) {
-    return LoginMode.SSO;
+  if (value === LoginMode.IDASS) {
+    return LoginMode.IDASS;
   }
   throw new Error(`${label} is invalid`);
 }
